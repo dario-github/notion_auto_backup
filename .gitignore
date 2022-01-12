@@ -2,3 +2,6 @@ build
 venv
 .idea
 *.pyc
+.config_file.json
+poetry.lock
+.gitignore
