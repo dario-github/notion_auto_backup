@@ -43,6 +43,9 @@ def start():
 #
 if __name__ == '__main__':
     Config.parse_configs()
+
+    # Config.load_config_file("/home/zdc/workspace/notion-up/.config_file.json")
+
     Config.check_required_args()
     Config.check_required_modules()
 
