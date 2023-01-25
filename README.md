@@ -22,9 +22,6 @@ flowchart LR
 
     style A0 fill:#ecdfb6
 
-
-    click B "https://github.com/glotlabs/gdrive#using-gdrive-on-a-remote-server" _blank
-
 ```
 
 ## 日常维护
