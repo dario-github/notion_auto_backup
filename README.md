@@ -11,7 +11,6 @@ database 的 dump 有些问题，文本类尚可。
 
 ```mermaid
 flowchart LR
-    A0[[浏览器按F12 在Applications的Cookies中]] --> A
     A[(Notion token_v2)] --> A1(修改 '.config_file.json')
     B(gdrive 下载解压) --> B1>gdrive 账户授权] --> B2(google drive 待更新版本的文件ID) -->B3(修改 pipline.sh 中 GFILEID)
     C(python 虚拟环境) --> C1[/执行 create_python_env_in_new_machine.sh/]
@@ -19,12 +18,34 @@ flowchart LR
     A1 & B3 & C1 --> D[/执行 pipline.sh/]
     D --> E[/crontab 定时任务/]
 
-    style A0 fill:#ecdfb6
     style B22 fill:#ecdfb6
+    
+    click A "https://github.com/dario-github/notion_backup#获取Notion-token_v2" _self
+    click B "https://github.com/dario-github/notion_backup#获取Notion-token_v2" _parent
+    click C "https://github.com/dario-github/notion_backup#获取Notion-token_v2" _top
 ```
+
+#### 获取Notion token_v2
+浏览器打开 [notion.so](notion.so) 并登录自己账户，按F12，在Applications的Cookies中找到token_v2,
+
+#### 创建 Google API
+见 [gdrive提供的创建方法](https://github.com/glotlabs/gdrive/blob/main/docs/create_google_api_credentials.md)
+
+#### gdrive 添加账户
+
+```shell
+# gdrive 下载/添加账户
+
+wget https://github.com/glotlabs/gdrive/releases/download/3.6.0/gdrive_linux-x64.tar.gz && unzip gdrive_linux-x64.tar.gz
+mkdir -p /root/go/bin && mv gdrive -t /root/go/bin
+/root/go/bin/gdrive account add
+```
+
+#### 设置定期执行
 
 ```shell
 # crontab 添加一行，每周日凌晨3点执行pipline，记录日志
+
 0 3 * * 0 /bin/bash /xxx/notion-up/pipline.sh >> /xxx/notion-up/pipline.log 2>&1
 ```
 
