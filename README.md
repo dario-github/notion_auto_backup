@@ -1,77 +1,42 @@
-# notion-up
-[中文说明](https://www.kaedea.com/2021/10/01/devops/notion-backup/)
+# notion 定期自动备份到 google drive
 
-![](https://www.kaedea.com/assets/8f134329_a1a6_49b2_97a4_c07ea4c3e733_untitled.png)
+## 简介
 
-NotionUp (Notion Backup) is a python repo helping you to backup notion data automatically.
+利用 notion API 的 export 功能，将 workspace 内容定期保存为 zip 文件，并上传到 google drive 备份。
 
-## **Getting Started**
+在 [notion-up](https://github.com/kaedea/notion-up) 的项目基础上，衔接 [gdrive](https://github.com/glotlabs/gdrive) 项目。
 
-### **Prepare**
+database 和图片有些问题，文本类尚可。
 
-To get started with NotionUp, you should:
+目前只是备份，没有做 diff 分析，应该也不太需要，我自己的 notion 结构太复杂，没什么分析必要。
 
-1. Prepare your Notion's username(email) and password, or just find your `notion_token_v2`.
-2. Run `notion-up/main.py` with your configs.
+### 从零开始的 pipline
 
-Check [here](https://github.com/kaedea/notion-down/blob/master/dist/parse_readme/notiondown_gettokenv2.md) to find out your `notion_token_v2` if need.
+```mermaid
+flowchart LR
+    A0[[浏览器按F12 在Applications的Cookies中]] --> A
+    A[(Notion token_v2)] --> A1(修改 '.config_file.json')
+    B(gdrive 下载解压) --> B1>gdrive 账户授权] --> B2(google drive 文件夹ID) -->B3(修改 pipline.sh 中 GFOLDID)
+    C(python 虚拟环境) --> C1[/执行 create_python_env_in_new_machine.sh/]
+    A1 & B3 & C1 --> D[/执行 pipline.sh/]
 
-### **Run CLI**
+    style A0 fill:#ecdfb6
 
-Basically just run `notion-down/main.py` :
 
-```bash
-# Run with cli cmd
-PYTHONPATH=./ python main.py
-    --token_v2 <token_v2>
-    --username <username>  # Only when token_v2 is not presented
-    --password <password>  # Only when token_v2 is not presented
+    click B "https://github.com/glotlabs/gdrive#using-gdrive-on-a-remote-server" _blank
 
-# or
-PYTHONPATH=./ python main.py \
-    --config_file '.config_file.json'
-
-# Your can configure notion-down args by cli-args, config_file or SysEnv parameters
-# Priority: cli args > config_file > SysEnv parameters > NotionDown default
 ```
 
-### Archive to GitHub Release
+## 日常维护
 
-Check the following workflows and jobs in `.circleci/config.yml` to get how it works.
+notion_v2 每**三个月**失效，需要再次获取
 
-```yaml
-workflows:
-  backup-notion:
-    jobs:
-      - export-workspace
-      - publish-github-release:
-          requires:
-            - export-workspace
-```
+### 依赖
 
-As examples, check the output at [Release](https://github.com/kaedea/notion-up/releases) and [notion-exported](https://github.com/kaedea/notion-up/tree/master/dist).
+- notion API（可能会变动）
+- google OAuth 客户端
 
-### Backup nightly
+## 贡献
 
-Check the following crontab workflows.
-
-```yaml
-workflows:
-  backup-notion-nightly:
-    triggers:
-      - schedule:
-          cron: "0 * * * *"  # every hour
-          filters:
-            branches:
-              only:
-                - master
-    jobs:
-      - export-workspace
-      - publish-github-release:
-          requires:
-            - export-workspace
-```
-
-## **Showcase**
-
-Work with CircleCI, see `.circleci/config.yml`.
+- notion-up - [https://github.com/kaedea/notion-up](https://github.com/kaedea/notion-up)
+- gdrive 3.x -[https://github.com/glotlabs/gdrive](https://github.com/glotlabs/gdrive)
