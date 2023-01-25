@@ -16,11 +16,13 @@ database 和图片有些问题，文本类尚可。
 flowchart LR
     A0[[浏览器按F12 在Applications的Cookies中]] --> A
     A[(Notion token_v2)] --> A1(修改 '.config_file.json')
-    B(gdrive 下载解压) --> B1>gdrive 账户授权] --> B2(google drive 文件夹ID) -->B3(修改 pipline.sh 中 GFOLDID)
+    B(gdrive 下载解压) --> B1>gdrive 账户授权] --> B2(google drive 待更新版本的文件ID) -->B3(修改 pipline.sh 中 GFILEID)
     C(python 虚拟环境) --> C1[/执行 create_python_env_in_new_machine.sh/]
+    B22[[文件链接中view前的slug]] --> B2
     A1 & B3 & C1 --> D[/执行 pipline.sh/]
 
     style A0 fill:#ecdfb6
+    style B22 fill:#ecdfb6
 
 ```
 
