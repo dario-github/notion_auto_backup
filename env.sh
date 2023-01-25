@@ -1,1 +1,1 @@
-go get github.com/prasmussen/gdrive
+go get github.com/glotlabs/gdrive
