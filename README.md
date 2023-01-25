@@ -1,13 +1,27 @@
-# notion 定期自动备份到 google drive
+<a name="index">**Index**</a>
 
-## 简介
+<a href=" 0">notion 定期自动备份到 google drive</a>  
+&emsp;<a href="#1">简介</a>  
+&emsp;<a href="#2">从零开始的 pipline</a>  
+&emsp;&emsp;<a href="#3">获取Notion token_v2</a>  
+&emsp;&emsp;<a href="#4">gdrive 环境</a>  
+&emsp;&emsp;&emsp;<a href="#5">创建 Google API</a>  
+&emsp;&emsp;&emsp;<a href="#6">添加账户</a>  
+&emsp;&emsp;&emsp;<a href="#7">待更新文件的ID</a>  
+&emsp;&emsp;<a href="#8">设置定期执行</a>  
+&emsp;<a href="#9">日常维护</a>  
+&emsp;&emsp;<a href="#10">依赖</a>  
+&emsp;<a href="#11">贡献</a>  
+# <a name="0">notion 定期自动备份到 google drive</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
+
+## <a name="1">简介</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
 
 利用 notion API 的 export 功能，将 workspace 内容定期保存为 zip 文件，并上传到 google drive 备份。
 在 [notion-up](https://github.com/kaedea/notion-up) 的项目基础上，衔接 [gdrive v3.x](https://github.com/glotlabs/gdrive) 项目。
 database 的 dump 有些问题，文本类尚可。
 目前只是备份，没有做 diff 分析，应该也不太需要，我自己的 notion 结构太复杂，没什么分析必要。
 
-## 从零开始的 pipline
+## <a name="2">从零开始的 pipline</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
 
 ```mermaid
 flowchart LR
@@ -25,15 +39,15 @@ flowchart LR
 ```
 
 
-### 获取Notion token_v2
+### <a name="3">获取Notion token_v2</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
 浏览器打开 [notion.so](https://notion.so) 并登录自己账户，按F12，在Applications的Cookies中找到token_v2,
 
-### gdrive 环境
+### <a name="4">gdrive 环境</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
 
-#### 创建 Google API
+#### <a name="5">创建 Google API</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
 见 [gdrive提供的创建方法](https://github.com/glotlabs/gdrive/blob/main/docs/create_google_api_credentials.md)
 
-#### 添加账户
+#### <a name="6">添加账户</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
 
 ```shell
 # gdrive 下载/添加账户
@@ -43,7 +57,7 @@ mkdir -p /root/go/bin && mv gdrive -t /root/go/bin
 /root/go/bin/gdrive account add
 ```
 
-#### 待更新文件的ID
+#### <a name="7">待更新文件的ID</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
 
 在 google drive 中获取文件链接，view 前的 slug 即为文件 ID ，将 pipline.sh 中 GFILEID 改为这串 ID
 
@@ -53,7 +67,7 @@ https://drive.google.com/file/d/1C1SS2Uz8WV63uQkeovpnZAI71eNrAEdV/view?usp=share
 这里的 1C1SS2Uz8WV63uQkeovpnZAI71eNrAEdV 是文件ID
 ```
 
-### 设置定期执行
+### <a name="8">设置定期执行</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
 
 ```shell
 # crontab 添加一行，每周日凌晨3点执行pipline，记录日志
@@ -61,11 +75,11 @@ https://drive.google.com/file/d/1C1SS2Uz8WV63uQkeovpnZAI71eNrAEdV/view?usp=share
 0 3 * * 0 /bin/bash /xxx/notion-up/pipline.sh >> /xxx/notion-up/pipline.log 2>&1
 ```
 
-## 日常维护
+## <a name="9">日常维护</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
 
 notion_v2 每**三个月**失效，需要再次获取
 
-### 依赖
+### <a name="10">依赖</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
 
 - notion API
     - 版本变动
@@ -73,7 +87,7 @@ notion_v2 每**三个月**失效，需要再次获取
 - google OAuth 客户端
     - 因安全性可能会更改授权方式
 
-## 贡献
+## <a name="11">贡献</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
 
 - notion-up - [https://github.com/kaedea/notion-up](https://github.com/kaedea/notion-up)
 - gdrive 3.x -[https://github.com/glotlabs/gdrive](https://github.com/glotlabs/gdrive)
