@@ -12,26 +12,29 @@ database 的 dump 有些问题，文本类尚可。
 ```mermaid
 flowchart LR
     A[(Notion token_v2)] --> A1(修改 '.config_file.json')
-    B(gdrive 下载解压) --> B1>gdrive 账户授权] --> B2(google drive 待更新版本的文件ID) -->B3(修改 pipline.sh 中 GFILEID)
+    B(gdrive 下载/添加账户/获取待更新版本的文件ID) -->B1(修改 pipline.sh 中 GFILEID)
     C(python 虚拟环境) --> C1[/执行 create_python_env_in_new_machine.sh/]
-    B22[[文件链接中view前的slug]] --> B2
-    A1 & B3 & C1 --> D[/执行 pipline.sh/]
+    B0[[文件链接中view前的slug]] --> B
+    A1 & B1 & C1 --> D[/执行 pipline.sh/]
     D --> E[/crontab 定时任务/]
 
-    style B22 fill:#ecdfb6
+    style B0 fill:#ecdfb6
     
-    click A "https://github.com/dario-github/notion_backup#获取Notion-token_v2" _self
-    click B "https://github.com/dario-github/notion_backup#获取Notion-token_v2" _parent
-    click C "https://github.com/dario-github/notion_backup#获取Notion-token_v2" _top
+    click A "https://github.com/dario-github/notion_backup#%E8%8E%B7%E5%8F%96notion-token_v2" _self
+    click B "https://github.com/dario-github/notion_backup/edit/master/README.md#gdrive-%E7%8E%AF%E5%A2%83" _self
+    click E "https://github.com/dario-github/notion_backup#%E8%AE%BE%E7%BD%AE%E5%AE%9A%E6%9C%9F%E6%89%A7%E8%A1%8C" _self
 ```
+
 
 #### 获取Notion token_v2
 浏览器打开 [notion.so](notion.so) 并登录自己账户，按F12，在Applications的Cookies中找到token_v2,
 
-#### 创建 Google API
+#### gdrive 环境
+
+##### 创建 Google API
 见 [gdrive提供的创建方法](https://github.com/glotlabs/gdrive/blob/main/docs/create_google_api_credentials.md)
 
-#### gdrive 添加账户
+##### 添加账户
 
 ```shell
 # gdrive 下载/添加账户
