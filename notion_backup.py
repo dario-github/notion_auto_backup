@@ -1,6 +1,7 @@
 import json
 import shutil
 import time
+import arrow
 import zipfile
 from pathlib import Path
 from typing import List
@@ -53,6 +54,8 @@ class NotionUp:
     @staticmethod
     def waitForExportedUrl(taskId):
         print('Polling for export task: {}'.format(taskId))
+        t_0 = arrow.now()
+        wait_nums = 0
         while True:
             res = NotionUp.requestPost('getTasks', {'taskIds': [taskId]})
             tasks = res.get('results')
@@ -61,9 +64,16 @@ class NotionUp:
                 url = task['status']['exportURL']
                 print('\n' + url)
                 break
-            else:
-                print('.', end="", flush=True)
+            elif task['state'] == 'in_progress':
+                print(f'\rDuration: {arrow.now() - t_0}', end="", flush=False)
                 time.sleep(10)
+            elif task['state'] == 'not_started':
+                wait_nums += 1
+                print(f'not started, wait {wait_nums} times.')
+                time.sleep(10)
+            else:
+                raise Exception('\n' + 'Error! Here is the return message:\n' + str(res))
+        print('export state success\n')
         return url
 
     @staticmethod
