@@ -2,12 +2,13 @@
 name = "notion-up"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["Dario zdclink@gmail.com"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
 requests = "2.27.1"
 python-slugify = "5.0.2"
+arrow = "1.2.3"
 
 [tool.poetry.dev-dependencies]
 
