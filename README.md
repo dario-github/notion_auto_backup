@@ -1,3 +1,5 @@
+![visitors](https://visitor-badge.glitch.me/badge?page_id=dario-github.notion_auto_backup&left_color=green&right_color=pink)
+
 [English](./README.md) / [简体中文](./README.zh.md)
 
 # Notion Regular Auto Backup to Google Drive
