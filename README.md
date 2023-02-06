@@ -1,93 +1,84 @@
-<a name="index">**Index**</a>
+[English](./README.md) / [简体中文](./README.zh.md)
 
-<a href=" 0">notion 定期自动备份到 google drive</a>  
-&emsp;<a href="#1">简介</a>  
-&emsp;<a href="#2">从零开始的 pipline</a>  
-&emsp;&emsp;<a href="#3">获取Notion token_v2</a>  
-&emsp;&emsp;<a href="#4">gdrive 环境</a>  
-&emsp;&emsp;&emsp;<a href="#5">创建 Google API</a>  
-&emsp;&emsp;&emsp;<a href="#6">添加账户</a>  
-&emsp;&emsp;&emsp;<a href="#7">待更新文件的ID</a>  
-&emsp;&emsp;<a href="#8">设置定期执行</a>  
-&emsp;<a href="#9">日常维护</a>  
-&emsp;&emsp;<a href="#10">依赖</a>  
-&emsp;<a href="#11">贡献</a>  
-# <a name="0">notion 定期自动备份到 google drive</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
+# Notion Regular Auto Backup to Google Drive
 
-## <a name="1">简介</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
+## Introduction
 
-利用 notion API 的 export 功能，将 workspace 内容定期保存为 zip 文件，并上传到 google drive 备份。
-在 [notion-up](https://github.com/kaedea/notion-up) 的项目基础上，衔接 [gdrive v3.x](https://github.com/glotlabs/gdrive) 项目。
-database 的 dump 有些问题，文本类尚可。
-目前只是备份，没有做 diff 分析，应该也不太需要，我自己的 notion 结构太复杂，没什么分析必要。
+By using the export function of the Notion API, this pipeline saves the contents of a workspace in Notion regularly as a zip file and uploads it to Google Drive for backup. This pipeline is based on the [notion-up](https://github.com/kaedea/notion-up) project and integrates with the [gdrive v3.x](https://github.com/glotlabs/gdrive) project. There are some issues with the dump of databases, but text types are still acceptable. Currently, it only serves as a backup and there is no diff analysis. This is because the structure of my own Notion is too complicated and there is no need for analysis.
 
-## <a name="2">从零开始的 pipline</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
+## Step by Step Guide
 
 ```mermaid
 flowchart LR
-    A[(Notion token_v2)] --> A1[[修改 '.config_file.json']]
-    B([gdrive 下载/添加账户/获取待更新版本的文件ID]) -->B1[[修改 pipline.sh 中 GFILEID]]
-    C([python 虚拟环境]) --> C1[/执行 create_python_env_in_new_machine.sh/]
-    A1 & B1 & C1 --> D[/执行 pipline.sh/]
-    D --> E[/crontab 定时任务/]
+    A[(Notion token_v2)] --> A1[[Modify '.config_file.json']]
+    B([gdrive download/add account/get file ID of the version to be updated]) --> B1[[Modify GFILEID in pipline.sh]]
+    C([python virtual environment]) --> C1[/Execute create_python_env_in_new_machine.sh/]
+    A1 & B1 & C1 --> D[/Execute pipline.sh/]
+    D --> E[/Set crontab as a scheduled task/]
 
     style D fill:#ecdfb6,color:#0b111a
     
-    click A href "https://github.com/dario-github/notion_backup#%E8%8E%B7%E5%8F%96notion-token_v2" _self
-    click B href "https://github.com/dario-github/notion_backup/edit/master/README.md#gdrive-%E7%8E%AF%E5%A2%83" _self
-    click E href "https://github.com/dario-github/notion_backup#%E8%AE%BE%E7%BD%AE%E5%AE%9A%E6%9C%9F%E6%89%A7%E8%A1%8C" _self
+    click A href "https://github.com/dario-github/notion_backup#getting-notion-token_v2" _self
+    click B href "https://github.com/dario-github/notion_backup/edit/master/README.md#gdrive-environment" _self
+    click E href "https://github.com/dario-github/notion_backup#setting-up-scheduled-execution" _self
+
 ```
 
 
-### <a name="3">获取Notion token_v2</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
-浏览器打开 [notion.so](https://notion.so) 并登录自己账户，按F12，在Applications的Cookies中找到token_v2,
+### Obtaining Notion token_v2
 
-### <a name="4">gdrive 环境</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
+Login to your Notion account on the [notion.so](https://notion.so) website. Press F12 and find the token_v2 in the Cookies under the Applications tab.
 
-#### <a name="5">创建 Google API</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
-见 [gdrive提供的创建方法](https://github.com/glotlabs/gdrive/blob/main/docs/create_google_api_credentials.md)
+### gdrive Environment
 
-#### <a name="6">添加账户</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
+#### Creating Google API
+
+Refer to [the method provided by gdrive](https://github.com/glotlabs/gdrive/blob/main/docs/create_google_api_credentials.md) for creating a Google API.
+
+#### Adding Accounts
 
 ```shell
-# gdrive 下载/添加账户
+# Download/add account for gdrive
 
 wget https://github.com/glotlabs/gdrive/releases/download/3.6.0/gdrive_linux-x64.tar.gz && unzip gdrive_linux-x64.tar.gz
 mkdir -p /root/go/bin && mv gdrive -t /root/go/bin
 /root/go/bin/gdrive account add
+
 ```
 
-#### <a name="7">待更新文件的ID</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
+#### Obtaining ID of File to be Updated
 
-在 google drive 中获取文件链接，view 前的 slug 即为文件 ID ，将 pipline.sh 中 GFILEID 改为这串 ID
+Get the file link in Google Drive, and the string before "view" in the link is the file ID. Replace the GFILEID in pipline.sh with this ID.
 
-例如：
+For example:
 ```plain text
 https://drive.google.com/file/d/1C1SS2Uz8WV63uQkeovpnZAI71eNrAEdV/view?usp=share_link
-这里的 1C1SS2Uz8WV63uQkeovpnZAI71eNrAEdV 是文件ID
+Here, 1C1SS2Uz8WV63uQkeovpnZAI71eNrAEdV is the file ID
+
 ```
 
-### <a name="8">设置定期执行</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
+### Setting Up Scheduled Execution
 
 ```shell
-# crontab 添加一行，每周日凌晨3点执行pipline，记录日志
+# Add a line to crontab to execute pipeline every Sunday at 3am and log the output.
 
 0 3 * * 0 /bin/bash /xxx/notion-up/pipline.sh >> /xxx/notion-up/pipline.log 2>&1
+
 ```
 
-## <a name="9">日常维护</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
+## Routine Maintenance
 
-notion_v2 每**三个月**失效，需要再次获取
+The notion_v2 token will become invalid **every three months** and will need to be obtained again.
 
-### <a name="10">依赖</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
+### Dependencies
 
-- notion API
-    - 版本变动
-    - 新元素的export可能会有格式问题?
-- google OAuth 客户端
-    - 因安全性可能会更改授权方式
+- Notion API
+    - Version changes
+    - New elements' export may have formatting issues?
+- Google OAuth client
+    - Authorization methods may change for security reasons
 
-## <a name="11">贡献</a><a style="float:right;text-decoration:none;" href="#index">[Top]</a>
+## Contributions
 
-- notion-up - [https://github.com/kaedea/notion-up](https://github.com/kaedea/notion-up)
-- gdrive 3.x -[https://github.com/glotlabs/gdrive](https://github.com/glotlabs/gdrive)
+- Notion-up - [https://github.com/kaedea/notion-up](https://github.com/kaedea/notion-up)
+- Gdrive 3.x - [https://github.com/glotlabs/gdrive](https://github.com/glotlabs/gdrive)
