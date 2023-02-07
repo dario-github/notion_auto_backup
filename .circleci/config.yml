@@ -1,0 +1,130 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@1.2
+
+workflows:
+  backup-notion:
+    jobs:
+      - export-workspace:
+          filters:
+            branches:
+              only: feature/circleci
+      - publish-github-release:
+          requires:
+            - export-workspace
+
+  backup-notion-nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"  # every day UTC±00:00
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - export-workspace
+      - publish-github-release:
+          requires:
+            - export-workspace
+
+jobs:
+  export-workspace:
+    parameters:
+      branch_build:
+        type: string
+        default: master
+    working_directory: ~/project-export
+    docker:
+      - image: cimg/python:3.8
+    steps:
+      - run:
+          name: Check Env
+          command: |
+            if [ ! ${GH_TOKEN} ]; then
+                echo "'GH_TOKEN' not presented!"
+                exit 1
+            fi
+            if [ ! ${NOTION_TOKEN_V2} ]; then
+                echo "'NOTION_TOKEN_V2' not presented!"
+                exit 1
+            fi
+      - attach_workspace:
+          at: ~/project-export
+      - checkout
+      - run:
+          name: Python pip install
+          command: |
+            pip install requests
+            pip install python-slugify
+      - run:
+          name: Run action
+          command: |
+            PYTHONPATH=./ python main.py \
+                --token_v2 ${NOTION_TOKEN_V2} \
+                --action "all" \
+                --output "build/exported"
+      - run:
+          name: Dump outputs
+          command: |
+            pwd && ls -l && ls -l ~/project-export/build/exported
+      - run:
+          name: Collect zip files
+          command: |
+            echo "Collect exported zip files:"
+            if [ -d '~/project-export/build/archives' ]; then
+                rm -rf ~/project-export/build/archives
+            fi
+            mkdir ~/project-export/build/archives
+            find ~/project-export/build/exported -name "*.zip" -type f | xargs -I '{}' echo '{}'
+            find ~/project-export/build/exported -name "*.zip" -type f | xargs -I '{}' mv '{}' ~/project-export/build/archives
+      - persist_to_workspace:
+          root: ~/project-export
+          paths:
+            - ./build/archives
+      - run:
+          name: Push unzip files to dist
+          command: |
+            # skip push for test
+            exit 0
+
+            git clone -b feature/backups "https://${GH_TOKEN}@github.com/kaedea/notion-up.git" deploy
+            cd deploy
+            git config user.name "Kaede"
+            git config user.email "kidhaibara@gmail.com"
+
+            # Copy files
+            if [ -d 'dist' ]; then
+                rm -rf dist
+            fi
+            mkdir dist
+            echo "Copy unzipfiles:"
+            cp -r ~/project-export/build/exported/. dist/
+
+            # Git push
+            git add *
+            git status
+            git commit -a -m "Circleci-bot notion backup - ${CIRCLE_BUILD_NUM}"
+            git push --force --quiet "https://${GH_TOKEN}@github.com/kaedea/notion-up.git"
+
+  publish-github-release:
+    parameters:
+      branch_build:
+        type: string
+        default: master
+    working_directory: ~/project-github-release
+    docker:
+      - image: cibuilds/github:0.13
+    steps:
+      - attach_workspace:
+          at: ~/project-export
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            # skip github-release for test
+            # exit 0
+
+            pwd && ls -l && ls -l ~/project-export/build/archives
+            VERSION=$(date '+%Y-%m-%d')
+            ghr -t ${GH_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ~/project-export/build/archives
+     
